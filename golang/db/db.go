@@ -18,7 +18,7 @@ func InitGDB() {
 	db, err := gorm.Open(sqlite.Open(dbName), &gorm.Config{})
 
 	if err != nil {
-		panic("failed to connect database")
+		panic("failed to connect")
 	}
 
 	if !os.IsNotExist(existFileErr) {

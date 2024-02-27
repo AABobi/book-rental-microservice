@@ -5,8 +5,9 @@ import (
 	"book-rental/db"
 	"book-rental/helpers"
 	"book-rental/utils"
+	"bytes"
+	"encoding/json"
 	"fmt"
-
 	"net/http"
 )
 
@@ -15,6 +16,83 @@ type AuthResponse struct {
 	Token string `json:"token"`
 }
 
+func PushTest(w http.ResponseWriter, r *http.Request) {
+	a := data.User{
+		Email:    "f12",
+		Password: "f12",
+	}
+
+	// Convert data to JSON
+	jsonData, err := json.Marshal(a)
+	if err != nil {
+		fmt.Println("Error marshaling JSON:", err)
+		return
+	}
+
+	//client := &http.Client{}
+	req, err := http.NewRequest("POST", "http://localhost:91/authenticate", bytes.NewBuffer(jsonData))
+	if err != nil {
+		fmt.Println("Error creating request:", err)
+		return
+	}
+	t, _ := utils.HashPassword("pass")
+	tt, _ := utils.HashPassword("pass")
+	fmt.Println(tt)
+	req.Header.Set("Key", t)
+	//req.Header.Set("Authorization", "Bearer YOUR_ACCESS_TOKEN")
+	client := &http.Client{}
+	_, err = client.Do(req)
+	if err != nil {
+		return
+	}
+	var data1 string
+	dec := json.NewDecoder(r.Body)
+	err = dec.Decode(&data1)
+	//body, err := ioutil.ReadAll(resp.Body)
+	fmt.Println("Response Status:", data1)
+	// Send POST request
+	/*resp, err := http.Post("http://localhost:91/authenticate", "application/json", bytes.NewBuffer(jsonData))
+	if err != nil {
+		fmt.Println("Error sending POST request:", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	fmt.Println("Response Status:", resp.Status)*/
+	/*fmt.Println("push testtt a")
+	a := User{
+		email:    "f12",
+		password: "f12",
+	}
+
+	json2, err := json.Marshal(a)
+	if err != nil {
+		fmt.Println("Error marshaling JSON:", err)
+		return
+	}
+	fmt.Println(json2)
+
+	// Send POST request
+	/*	resp, err := http.Post("http://localhost:91/authenticate", "application/json", bytes.NewBuffer(json2))
+		if err != nil {
+			fmt.Println("Error sending POST request:", err)
+			return
+		}*/
+	//defer resp.Body.Close()
+	/*	aa := fmt.Sprintf("Email: %s\nPassword: %s", a.email, a.password)
+		password := strings.NewReader(aa)
+		request, err := http.NewRequest("POST", "http://localhost:91/authenticate", password)
+
+		if err != nil {
+			fmt.Println("testPushTest")
+		}
+
+		client := &http.Client{}
+		_, err = client.Do(request)
+		if err != nil {
+			return
+		}*/
+}
 func GetAvailableBooks(w http.ResponseWriter, r *http.Request) {
 	condition := "user_id IS 0"
 	books := data.FindBooks(db.DB, condition)

@@ -29,6 +29,8 @@ func routes() http.Handler {
 
 	mux.With(middlewares.Authorization).Get("/get", handlers.GetUsers)
 
+	mux.Get("/micro", handlers.PushTest)
+
 	mux.Post("/signup", handlers.CreateNewUser)
 	mux.Post("/login", handlers.Login)
 	mux.With(middlewares.Authorization).Get("/get-rented-books", handlers.GetRentedBooks)

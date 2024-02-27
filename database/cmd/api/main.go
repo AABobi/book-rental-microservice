@@ -1,18 +1,17 @@
 package main
 
 import (
-	"book-rental/db"
+	"auth-db/db"
 	"fmt"
 	"log"
 	"net/http"
 )
 
-const webPort = "81"
-
-type Config struct{}
+const webPort = "91"
 
 func main() {
 	db.InitGDB()
+	fmt.Println("test")
 	log.Printf("Starting broker service on port %s\n", webPort)
 
 	// define http server
