@@ -3,19 +3,24 @@ package main
 import (
 	"auth-db/db"
 	"auth-db/helpers"
+	"fmt"
 	"net/http"
 )
 
 func FindUser(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("FIND USER11")
 	var requestData db.User
 	err := helpers.ReadJSON(w, r, &requestData)
 	if err != nil {
+		fmt.Println("ERROR")
 		http.Error(w, "Error decoding JSON", http.StatusBadRequest)
 		return
 	}
-
+	fmt.Println("FIND USER")
+	fmt.Println(requestData)
 	requestData.GetUser(db.DB)
 	if requestData.UserID != 0 {
+		fmt.Println("SENDING")
 		helpers.WriteJSON(w, 200, requestData)
 		return
 	}
