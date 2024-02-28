@@ -3,53 +3,82 @@ package main
 import (
 	"api-gateway/data"
 	"api-gateway/helpers"
+	"api-gateway/utils"
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
 )
 
+const authServicePassword = "superSecretAuthDbPassword"
+
 func Login(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("LOGIN")
 	var user data.User
+	var response string
 	err := helpers.ReadJSON(w, r, &user)
 
 	if err != nil {
 		http.Error(w, "Cannot read user json", 440)
 		return
 	}
-	a := data.User{
-		Email:    "f11",
-		Password: "f11",
-	}
-	jsonData, err := json.Marshal(a)
-	req, err := http.NewRequest("POST", "http://localhost:91/authenticate", bytes.NewBuffer(jsonData))
+
+	err = sendRequest(user, &response, w)
 
 	if err != nil {
 		http.Error(w, "New request problem", 440)
+	}
+	fmt.Println("Response Status:", response)
+}
+
+func SingUp(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("SIGN")
+	var user data.User
+	var response string
+	err := helpers.ReadJSON(w, r, &user)
+
+	if err != nil {
+		http.Error(w, "Cannot read user json", 440)
 		return
 	}
 
+	err = sendRequest(user, &response, w)
+
+	if err != nil {
+		http.Error(w, "New request problem", 440)
+	}
+	fmt.Println("Response Status:", response)
+}
+
+func sendRequest(data any, response *string, w http.ResponseWriter) error {
+	fmt.Println("SENDREQ")
+	fmt.Println(data)
+	jsonData, err := json.Marshal(data)
+	req, err := http.NewRequest("POST", "http://localhost:91/add-new-user", bytes.NewBuffer(jsonData))
+
+	if err != nil {
+		http.Error(w, "New request problem", 440)
+		return err
+	}
+
+	hashedPassword, err := utils.HashPassword(authServicePassword)
+	req.Header.Set("key", hashedPassword)
 	client := &http.Client{}
 	resp, err := client.Do(req)
-	defer resp.Body.Close()
+
 	if err != nil {
-		return
+		return err
 	}
+
 	buf := new(bytes.Buffer)
-	buf.ReadFrom(resp.Body)
-	respBytes := buf.String()
+	_, err = buf.ReadFrom(resp.Body)
 
-	respString := string(respBytes)
-
-	fmt.Println("Response Status:", respString)
-	/*body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Println("Error reading response body:", err)
-		return
+		return err
 	}
 
-	// Print the response body
-	fmt.Println("Response Status:", resp.Status)
-	fmt.Println("Response Body:", string(body))*/
+	*response = buf.String()
+
+	defer resp.Body.Close()
+	return nil
 }

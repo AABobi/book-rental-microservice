@@ -19,5 +19,6 @@ func routes() http.Handler {
 	}))
 
 	mux.Post("/login", Login)
+	mux.Post("/signup", SingUp)
 	return mux
 }

@@ -21,5 +21,6 @@ var handlerFunc = func(h http.Handler) http.Handler {
 			http.Error(w, "Incorrect key", 440)
 			return
 		}
+		h.ServeHTTP(w, r)
 	})
 }

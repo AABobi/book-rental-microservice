@@ -30,24 +30,25 @@ func FindUser(w http.ResponseWriter, r *http.Request) {
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	var newUser db.User
-	findUser := newUser
 	err := helpers.ReadJSON(w, r, &newUser)
+
 	if err != nil {
 		http.Error(w, "Error decoding JSON", http.StatusBadRequest)
 		return
 	}
-
+	findUser := newUser
 	findUser.GetUser(db.DB)
+
 	if findUser.UserID != 0 {
 		http.Error(w, "User exist", http.StatusBadRequest)
 		return
 	}
 
 	newUser.AddUser(db.DB)
-
 	newUser.GetUser(db.DB)
 
 	if newUser.UserID != 0 {
+		fmt.Println("CORRECT")
 		helpers.WriteJSON(w, 200, "User added correctly")
 		return
 	}
