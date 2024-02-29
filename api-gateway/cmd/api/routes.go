@@ -1,6 +1,7 @@
 package main
 
 import (
+	"api-gateway/middlewares"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
 	"net/http"
@@ -20,5 +21,10 @@ func routes() http.Handler {
 
 	mux.Post("/login", Login)
 	mux.Post("/signup", SingUp)
+	mux.With(middlewares.Authorization).Get("/get", GetAllBooks)
+	mux.With(middlewares.Authorization).Get("/get-available-books", GetAvailableBooks)
+	mux.With(middlewares.Authorization).Get("/get-rented-books", GetRentedBooks)
+	mux.With(middlewares.Authorization).Post("/rent-book", RentBook)
+	mux.With(middlewares.Authorization).Post("/return-books", ReturnBook)
 	return mux
 }

@@ -24,15 +24,14 @@ func InitGDB() {
 	if !os.IsNotExist(existFileErr) {
 		fmt.Printf("Database file %s exists\n", dbName)
 	} else {
-		user, books := testDataForDb()
-		db.AutoMigrate(&data.User{}, &data.Book{})
-		fillDb(db, user, books)
+		books := testDataForDb()
+		db.AutoMigrate(&data.Book{})
+		fillDb(db, books)
 	}
 	DB = db
 }
 
-func fillDb(db *gorm.DB, user data.User, books []data.Book) {
-	db.Create(&user)
+func fillDb(db *gorm.DB, books []data.Book) {
 	for _, book := range books {
 		result := db.Create(&book)
 		if result.Error != nil {
@@ -41,7 +40,7 @@ func fillDb(db *gorm.DB, user data.User, books []data.Book) {
 	}
 }
 
-func testDataForDb() (data.User, []data.Book) {
+func testDataForDb() []data.Book {
 
 	var books []data.Book
 
@@ -73,11 +72,5 @@ func testDataForDb() (data.User, []data.Book) {
 			book.BookID, book.Name, book.DateToReturn, book.UserID, book.ShippingAddress)
 	}
 
-	user := data.User{
-		Email:    "test",
-		Password: "test",
-		Books:    []data.Book{}, // Initialize Books as an empty slice
-	}
-
-	return user, books
+	return books
 }

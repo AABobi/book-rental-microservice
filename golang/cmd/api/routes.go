@@ -24,19 +24,15 @@ func routes() http.Handler {
 
 	//mux.Use(middleware.Heartbeat("/ping"))
 
-	mux.Get("/get-users", handlers.GetUsers)
 	mux.Get("/get-all-books", handlers.GetAllBooks)
 
-	mux.With(middlewares.Authorization).Get("/get", handlers.GetUsers)
-
-	mux.Get("/micro", handlers.PushTest)
-
-	mux.Post("/signup", handlers.CreateNewUser)
-	mux.Post("/login", handlers.Login)
-	mux.With(middlewares.Authorization).Get("/get-rented-books", handlers.GetRentedBooks)
-	mux.With(middlewares.Authorization).Post("/rent", handlers.RentBook)
+	/*	mux.With(middlewares.Authorization).Get("/get-rented-books", handlers.GetRentedBooks)
+		mux.With(middlewares.Authorization).Post("/rent", handlers.RentBook)
+		mux.With(middlewares.Authorization).Get("/get-available-books", handlers.GetAvailableBooks)
+		mux.With(middlewares.Authorization).Post("/return-books", handlers.ReturnTheBook)*/
+	mux.With(middlewares.Authorization).Get("/get-rented-books/{id}", handlers.GetRentedBooks)
+	mux.With(middlewares.Authorization).Post("/rent/{id}", handlers.RentBook)
 	mux.With(middlewares.Authorization).Get("/get-available-books", handlers.GetAvailableBooks)
-	mux.With(middlewares.Authorization).Post("/return-books", handlers.ReturnTheBook)
-
+	mux.With(middlewares.Authorization).Post("/return-books/{id}", handlers.ReturnTheBook)
 	return mux
 }

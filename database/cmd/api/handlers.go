@@ -3,17 +3,50 @@ package main
 import (
 	"auth-db/db"
 	"auth-db/helpers"
+	"auth-db/utils"
 	"fmt"
 	"net/http"
 )
 
+type AuthResponse struct {
+	Message string `json:"message"`
+	Token   string `json:"token"`
+}
+
+type ResponseMessage struct {
+	Message string `json:"message"`
+}
+
+var response = ResponseMessage{
+	Message: "EMPTY MESSAGE",
+}
+
+func Auth(w http.ResponseWriter, r *http.Request) {
+	token := r.Header.Get("Authorization")
+
+	id, err := utils.VerifyToken(token)
+
+	if err != nil {
+		authResponse := AuthResponse{Message: "Incorrect token", Token: token}
+		helpers.WriteJSON(w, 440, authResponse)
+	}
+
+	user := db.User{
+		UserID: *id,
+	}
+	fmt.Println("AUTH")
+	fmt.Println(user)
+	helpers.WriteJSON(w, 200, user)
+}
+
 func FindUser(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("FIND USER11")
 	var requestData db.User
+
 	err := helpers.ReadJSON(w, r, &requestData)
 	if err != nil {
-		fmt.Println("ERROR")
-		http.Error(w, "Error decoding JSON", http.StatusBadRequest)
+		response.Message = "Error decoding JSON"
+		helpers.WriteJSON(w, 400, response)
 		return
 	}
 	fmt.Println("FIND USER")
@@ -21,26 +54,43 @@ func FindUser(w http.ResponseWriter, r *http.Request) {
 	requestData.GetUser(db.DB)
 	if requestData.UserID != 0 {
 		fmt.Println("SENDING")
-		helpers.WriteJSON(w, 200, requestData)
+		token, err := utils.GenerateToken(requestData.Email, &requestData.UserID)
+
+		if err != nil {
+			response.Message = "Cannot generate token"
+			helpers.WriteJSON(w, 400, response)
+			return
+		}
+
+		responseAuth := AuthResponse{
+			Message: "Authenticated",
+			Token:   token,
+		}
+
+		helpers.WriteJSON(w, 200, responseAuth)
 		return
 	}
-	http.Error(w, "Cannot find a user", http.StatusBadRequest)
+	response.Message = "Cannot find a user"
+	helpers.WriteJSON(w, 400, response)
 	return
 }
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("CREATEUSER")
 	var newUser db.User
 	err := helpers.ReadJSON(w, r, &newUser)
 
 	if err != nil {
-		http.Error(w, "Error decoding JSON", http.StatusBadRequest)
+		response.Message = "Error decoding JSON"
+		helpers.WriteJSON(w, 400, response)
 		return
 	}
 	findUser := newUser
 	findUser.GetUser(db.DB)
 
 	if findUser.UserID != 0 {
-		http.Error(w, "User exist", http.StatusBadRequest)
+		response.Message = "User exist"
+		helpers.WriteJSON(w, 400, response)
 		return
 	}
 
@@ -48,12 +98,13 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	newUser.GetUser(db.DB)
 
 	if newUser.UserID != 0 {
-		fmt.Println("CORRECT")
-		helpers.WriteJSON(w, 200, "User added correctly")
+		response.Message = "User added correctly"
+		helpers.WriteJSON(w, 200, response)
 		return
 	}
 
-	http.Error(w, "Cannot add new user", http.StatusBadRequest)
+	response.Message = "Cannot add new user"
+	helpers.WriteJSON(w, 400, response)
 }
 
 // Handler only for tests
