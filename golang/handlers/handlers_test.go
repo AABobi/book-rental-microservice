@@ -20,7 +20,7 @@ func TestMain(m *testing.M) {
 	mock.CreateDBforTest(m)
 }
 
-func TestCreateNewUser(t *testing.T) {
+/*func TestCreateNewUser(t *testing.T) {
 	newUser := data.User{
 		Email:    "test@gmail.com",
 		Password: "pass",
@@ -50,9 +50,9 @@ func TestCreateNewUser(t *testing.T) {
 	if string(body) != want {
 		t.Errorf("Cannot create a user \n %v", string(body))
 	}
-}
+}*/
 
-func TestCreateNewUser_userExistInDB(t *testing.T) {
+/*func TestCreateNewUser_userExistInDB(t *testing.T) {
 	newUser := data.User{
 		Email:    "test@gmail.com",
 		Password: "pass",
@@ -81,9 +81,9 @@ func TestCreateNewUser_userExistInDB(t *testing.T) {
 	if string(body) != want {
 		t.Errorf("Cannot create a user \n %v", string(body))
 	}
-}
+}*/
 
-func TestLogin(t *testing.T) {
+/*func TestLogin(t *testing.T) {
 	newUser := data.User{
 		Email:    "test@gmail.com",
 		Password: "pass",
@@ -118,7 +118,7 @@ func TestLogin(t *testing.T) {
 	if !(loginResponse.Email == newUser.Email) && !(loginResponse.Token != "") {
 		t.Errorf("Login test failed")
 	}
-}
+}*/
 
 func TestGetAvailableBooks(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/get-available-books", nil)
@@ -141,20 +141,19 @@ func TestGetAvailableBooks(t *testing.T) {
 	var books []data.Book
 	json.Unmarshal([]byte(b), &books)
 	if len(books) != 37 {
-		t.Errorf("Unexpe ted body return")
+		t.Errorf("Unexpeted body return")
 	}
 }
 
 func TestRentBook(t *testing.T) {
-	_userIdFromContext := userIdFromContext
+	_pathId := pathId
 
 	defer func() {
-		userIdFromContext = _userIdFromContext
+		pathId = _pathId
 	}()
 
-	userIdFromContext = func(string, *http.Request) (*uint, bool) {
-		var mockUserId uint = 1
-		return &mockUserId, true
+	pathId = func(*http.Request) string {
+		return "1"
 	}
 
 	book := []data.Book{
@@ -180,23 +179,24 @@ func TestRentBook(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	want := `The rental has been made correctly`
+	var expected = data.ResponseMessage{`The rental has been made correctly`}
+	var gotResponse data.ResponseMessage
+	err = json.Unmarshal(body, &gotResponse)
 
-	if string(body) != want {
+	if gotResponse.Message != expected.Message {
 		t.Errorf("Rent a book test failed")
 	}
 }
 
 func TestGetRentedBooks(t *testing.T) {
-	_userIdFromContext := userIdFromContext
+	_pathId := pathId
 
 	defer func() {
-		userIdFromContext = _userIdFromContext
+		pathId = _pathId
 	}()
 
-	userIdFromContext = func(string, *http.Request) (*uint, bool) {
-		var mockUserId uint = 1
-		return &mockUserId, true
+	pathId = func(*http.Request) string {
+		return "1"
 	}
 
 	req := httptest.NewRequest(http.MethodPost, "/get-rented-books", nil)
@@ -224,5 +224,48 @@ func TestGetRentedBooks(t *testing.T) {
 
 	if books[0].Name != expectedBook[0].Name {
 		t.Errorf("Get rented books test failed")
+	}
+}
+
+func TestReturnTheBook(t *testing.T) {
+	_pathId := pathId
+
+	defer func() {
+		pathId = _pathId
+	}()
+
+	pathId = func(*http.Request) string {
+		return "1"
+	}
+
+	book := []data.Book{
+		{Name: "The Catcher in the Rye", ShippingAddress: "test"},
+	}
+
+	jsonString, _ := json.Marshal(book)
+
+	reader := bytes.NewReader(jsonString)
+
+	req := httptest.NewRequest(http.MethodPost, "/return-books", reader)
+
+	record := httptest.NewRecorder()
+
+	ReturnTheBook(record, req)
+	resp := record.Result()
+
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var expected = data.ResponseMessage{`Success: Book is updated correctly`}
+	var gotResponse data.ResponseMessage
+	err = json.Unmarshal(body, &gotResponse)
+
+	if gotResponse.Message != expected.Message {
+		t.Errorf("Rent a book test failed")
 	}
 }

@@ -2,16 +2,13 @@ package middlewares
 
 import (
 	"api-gateway/data"
+	"api-gateway/helpers"
 	"api-gateway/utils"
 	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 )
-
-type ResponseMessage struct {
-	Message string `json:"message"`
-}
 
 const authServicePassword = "superSecretAuthDbPassword"
 
@@ -21,9 +18,10 @@ func Authorization(handler http.Handler) http.Handler {
 
 var handlerFunc = func(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("AUTH")
 		var user data.User
 		var req *http.Request
-		var response ResponseMessage
+		var response data.ResponseMessage
 
 		url := "http://localhost:91/authorization"
 
@@ -53,19 +51,18 @@ var handlerFunc = func(h http.Handler) http.Handler {
 			err = json.NewDecoder(resp.Body).Decode(&response)
 
 			if err != nil {
-				fmt.Println(err)
 				http.Error(w, "New request problem", 440)
 			}
 			return
 		}
 
-		fmt.Println("Response Status:", user)
-		fmt.Println("1")
+		if user.UserID == 0 {
+			fmt.Println("TEST")
+			helpers.ErrorJson(w, "Incorrect token", 500)
+			return
+		}
 		ctx := context.Background()
-		fmt.Println("1")
 		ctx = context.WithValue(ctx, "myKey", user.UserID)
-		fmt.Println("1")
 		h.ServeHTTP(w, r.WithContext(ctx))
-		fmt.Println("1")
 	})
 }

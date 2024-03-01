@@ -25,11 +25,6 @@ func routes() http.Handler {
 	//mux.Use(middleware.Heartbeat("/ping"))
 
 	mux.Get("/get-all-books", handlers.GetAllBooks)
-
-	/*	mux.With(middlewares.Authorization).Get("/get-rented-books", handlers.GetRentedBooks)
-		mux.With(middlewares.Authorization).Post("/rent", handlers.RentBook)
-		mux.With(middlewares.Authorization).Get("/get-available-books", handlers.GetAvailableBooks)
-		mux.With(middlewares.Authorization).Post("/return-books", handlers.ReturnTheBook)*/
 	mux.With(middlewares.Authorization).Get("/get-rented-books/{id}", handlers.GetRentedBooks)
 	mux.With(middlewares.Authorization).Post("/rent/{id}", handlers.RentBook)
 	mux.With(middlewares.Authorization).Get("/get-available-books", handlers.GetAvailableBooks)

@@ -30,12 +30,9 @@ func WriteJSON(w http.ResponseWriter, status int, data any, headers ...http.Head
 }
 
 func ReadJSON(w http.ResponseWriter, r *http.Request, data any) error {
-	maxBytes := 1048576 // one megabyte
-
-	// Limit the size of the request body to a maximum number of bytes
+	maxBytes := 1048576
 	r.Body = http.MaxBytesReader(w, r.Body, int64(maxBytes))
-	// r.Body, _ :=
-	// Reads from the request body
+
 	dec := json.NewDecoder(r.Body)
 	err := dec.Decode(data)
 	if err != nil {

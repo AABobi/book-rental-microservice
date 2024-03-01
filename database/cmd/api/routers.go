@@ -3,6 +3,7 @@ package main
 import (
 	"auth-db/authenticate"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"net/http"
 
 	"github.com/go-chi/cors"
@@ -21,11 +22,10 @@ func routes() http.Handler {
 		MaxAge:           300,
 	}))
 
-	//mux.Use(middleware.Heartbeat("/ping"))
-	//mux.Post("/authenticate", FindUser)
+	mux.Use(middleware.Heartbeat("/ping"))
+
 	mux.With(authenticate.Authenticate).Post("/authenticate", FindUser)
 	mux.With(authenticate.Authenticate).Get("/authorization", Auth)
-	//mux.With(authenticate.Authenticate).Post("/add-new-user", CreateUser)
 	mux.With(authenticate.Authenticate).Post("/add-new-user", CreateUser)
 	mux.With(authenticate.Authenticate).Get("/get-all-users", GetAllUsers)
 	return mux

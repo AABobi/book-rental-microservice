@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"api-gateway/data"
 	"encoding/json"
 	"net/http"
 )
@@ -37,4 +38,15 @@ func WriteJSON(w http.ResponseWriter, data any, status int, header ...http.Heade
 	}
 
 	return nil
+}
+
+func ErrorJson(w http.ResponseWriter, message string, status int) {
+	var responseMessage = data.ResponseMessage{
+		Message: message,
+	}
+
+	err := WriteJSON(w, responseMessage, status)
+	if err != nil {
+		return
+	}
 }

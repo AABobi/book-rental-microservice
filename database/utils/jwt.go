@@ -48,8 +48,6 @@ func VerifyToken(token string) (*uint, error) {
 	}
 
 	//Nawiasy na końcu to type check
-	//email := claims["email"].(string)
-
 	var id float64 = claims["userId"].(float64)
 	userId := uint(id)
 

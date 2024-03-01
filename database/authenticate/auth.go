@@ -2,7 +2,6 @@ package authenticate
 
 import (
 	"auth-db/utils"
-	"fmt"
 	"net/http"
 )
 
@@ -17,12 +16,8 @@ var handlerFunc = func(h http.Handler) http.Handler {
 		key := r.Header.Get("key")
 
 		compareKey := utils.CheckPasswordHash(servicePassword, key)
-		fmt.Println("HANDLER")
-		fmt.Println(compareKey)
-		fmt.Println(key)
-		fmt.Println(r.Header.Get("Authorization"))
 		if !compareKey {
-			http.Error(w, "Incorrect key", 440)
+			http.Error(w, "Incorrect key", 401)
 			return
 		}
 		h.ServeHTTP(w, r)

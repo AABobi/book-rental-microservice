@@ -27,17 +27,16 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic("failed to connect database")
 	}
-	user, books := testDataForDb()
-	db.DB.AutoMigrate(&data.User{}, &data.Book{})
-	fillDb(db.DB, user, books)
+	books := testDataForDb()
+	db.DB.AutoMigrate(&data.Book{})
+	fillDb(db.DB, books)
 
 	//	db.DB.Create(&books)
 
 	os.Exit(m.Run())
 }
 
-func fillDb(db *gorm.DB, user data.User, books []data.Book) {
-	db.Create(&user)
+func fillDb(db *gorm.DB, books []data.Book) {
 	for _, book := range books {
 		result := db.Create(&book)
 		if result.Error != nil {
@@ -46,7 +45,7 @@ func fillDb(db *gorm.DB, user data.User, books []data.Book) {
 	}
 }
 
-func testDataForDb() (data.User, []data.Book) {
+func testDataForDb() []data.Book {
 
 	var books []data.Book
 
@@ -77,12 +76,5 @@ func testDataForDb() (data.User, []data.Book) {
 		fmt.Printf("BookID: %d, Name: %s, DateToReturn: %v, UserID: %d, ShippingAddress: %s\n",
 			book.BookID, book.Name, book.DateToReturn, book.UserID, book.ShippingAddress)
 	}
-
-	user := data.User{
-		Email:    "test",
-		Password: "test",
-		Books:    []data.Book{}, // Initialize Books as an empty slice
-	}
-
-	return user, books
+	return books
 }

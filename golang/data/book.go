@@ -16,8 +16,6 @@ type Book struct {
 	ShippingAddress string     `json:"shipping_address"`
 }
 
-// in progress
-// sent
 func FindBooks(db *gorm.DB, condition string) []Book {
 	var books []Book
 	db.Where(condition).Find(&books)

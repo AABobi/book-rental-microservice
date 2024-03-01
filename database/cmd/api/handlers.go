@@ -8,39 +8,31 @@ import (
 	"net/http"
 )
 
-type AuthResponse struct {
-	Message string `json:"message"`
-	Token   string `json:"token"`
-}
-
-type ResponseMessage struct {
-	Message string `json:"message"`
-}
-
-var response = ResponseMessage{
+var response = db.ResponseMessage{
 	Message: "EMPTY MESSAGE",
 }
 
 func Auth(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("TEST")
 	token := r.Header.Get("Authorization")
-
 	id, err := utils.VerifyToken(token)
 
 	if err != nil {
-		authResponse := AuthResponse{Message: "Incorrect token", Token: token}
+		fmt.Println("ERROR")
+		authResponse := db.AuthResponse{Message: "Incorrect token", Token: token}
 		helpers.WriteJSON(w, 440, authResponse)
+		return
 	}
 
 	user := db.User{
 		UserID: *id,
 	}
-	fmt.Println("AUTH")
-	fmt.Println(user)
+
 	helpers.WriteJSON(w, 200, user)
 }
 
 func FindUser(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("FIND USER11")
+	fmt.Println("TEST")
 	var requestData db.User
 
 	err := helpers.ReadJSON(w, r, &requestData)
@@ -49,11 +41,9 @@ func FindUser(w http.ResponseWriter, r *http.Request) {
 		helpers.WriteJSON(w, 400, response)
 		return
 	}
-	fmt.Println("FIND USER")
-	fmt.Println(requestData)
+
 	requestData.GetUser(db.DB)
 	if requestData.UserID != 0 {
-		fmt.Println("SENDING")
 		token, err := utils.GenerateToken(requestData.Email, &requestData.UserID)
 
 		if err != nil {
@@ -62,7 +52,7 @@ func FindUser(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		responseAuth := AuthResponse{
+		responseAuth := db.AuthResponse{
 			Message: "Authenticated",
 			Token:   token,
 		}
@@ -76,7 +66,6 @@ func FindUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("CREATEUSER")
 	var newUser db.User
 	err := helpers.ReadJSON(w, r, &newUser)
 
