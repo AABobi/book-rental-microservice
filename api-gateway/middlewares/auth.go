@@ -6,7 +6,6 @@ import (
 	"api-gateway/utils"
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 )
 
@@ -18,7 +17,6 @@ func Authorization(handler http.Handler) http.Handler {
 
 var handlerFunc = func(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("AUTH")
 		var user data.User
 		var req *http.Request
 		var response data.ResponseMessage
@@ -57,7 +55,6 @@ var handlerFunc = func(h http.Handler) http.Handler {
 		}
 
 		if user.UserID == 0 {
-			fmt.Println("TEST")
 			helpers.ErrorJson(w, "Incorrect token", 500)
 			return
 		}

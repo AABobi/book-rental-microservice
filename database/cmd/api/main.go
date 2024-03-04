@@ -11,7 +11,7 @@ const webPort = "91"
 
 func main() {
 	db.InitGDB()
-	fmt.Println("test")
+
 	log.Printf("Starting broker service on port %s\n", webPort)
 
 	// define http server

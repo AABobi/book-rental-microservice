@@ -4,7 +4,6 @@ import (
 	"auth-db/db"
 	"auth-db/helpers"
 	"auth-db/utils"
-	"fmt"
 	"net/http"
 )
 
@@ -13,12 +12,10 @@ var response = db.ResponseMessage{
 }
 
 func Auth(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("TEST")
 	token := r.Header.Get("Authorization")
 	id, err := utils.VerifyToken(token)
 
 	if err != nil {
-		fmt.Println("ERROR")
 		authResponse := db.AuthResponse{Message: "Incorrect token", Token: token}
 		helpers.WriteJSON(w, 440, authResponse)
 		return
@@ -32,7 +29,6 @@ func Auth(w http.ResponseWriter, r *http.Request) {
 }
 
 func FindUser(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("TEST")
 	var requestData db.User
 
 	err := helpers.ReadJSON(w, r, &requestData)

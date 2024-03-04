@@ -79,16 +79,16 @@ func TestCreateNewUser(t *testing.T) {
 
 	expected := db.ResponseMessage{Message: "User added correctly"}
 	b := string(body)
+
 	var gotResponse db.ResponseMessage
 	json.Unmarshal([]byte(b), &gotResponse)
-	//	fmt.Println(string(body))
+
 	if expected.Message != gotResponse.Message {
 		t.Errorf("Cannot create a user \n %v", string(body))
 	}
 }
 
 func TestCreateNewUser_userExistInDB(t *testing.T) {
-	//pass, _ := utils.HashPassword("password")
 	newUser := db.User{
 		Email:    "test1@gmail.com",
 		Password: "pass",
@@ -115,9 +115,10 @@ func TestCreateNewUser_userExistInDB(t *testing.T) {
 
 	expected := db.ResponseMessage{Message: "User exist"}
 	b := string(body)
+
 	var gotResponse db.ResponseMessage
 	json.Unmarshal([]byte(b), &gotResponse)
-	//	fmt.Println(string(body))
+
 	if expected.Message != gotResponse.Message {
 		t.Errorf("User should exist")
 	}
@@ -148,10 +149,9 @@ func TestLogin(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	//err = json.Unmarshal([]byte(response), &loginResponse)
-
 	expected := db.AuthResponse{Message: "Authenticated"}
 	b := string(body)
+
 	var gotResponse db.ResponseMessage
 	err = json.Unmarshal([]byte(b), &gotResponse)
 
@@ -185,7 +185,7 @@ func TestAuth(t *testing.T) {
 	b := string(body)
 	var gotResponse db.User
 	err = json.Unmarshal([]byte(b), &gotResponse)
-	fmt.Println(gotResponse.UserID)
+
 	if err != nil || expected.UserID != gotResponse.UserID {
 		t.Errorf("Login test failed")
 	}
@@ -208,7 +208,7 @@ func TestGetAllUsers(t *testing.T) {
 	var gotResponse []db.User
 	b := string(body)
 	err = json.Unmarshal([]byte(b), &gotResponse)
-	fmt.Println(len(gotResponse))
+
 	if err != nil || len(gotResponse) != expected {
 		t.Errorf("Login test failed")
 	}

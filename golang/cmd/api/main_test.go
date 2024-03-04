@@ -31,8 +31,6 @@ func TestMain(m *testing.M) {
 	db.DB.AutoMigrate(&data.Book{})
 	fillDb(db.DB, books)
 
-	//	db.DB.Create(&books)
-
 	os.Exit(m.Run())
 }
 

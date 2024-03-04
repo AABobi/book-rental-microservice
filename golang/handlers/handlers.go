@@ -15,7 +15,6 @@ var response = data.ResponseMessage{
 }
 
 func GetAvailableBooks(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("GETEVAIL")
 	condition := "user_id IS 0"
 	books := data.FindBooks(db.DB, condition)
 	_ = helpers.WriteJSON(w, 201, books)

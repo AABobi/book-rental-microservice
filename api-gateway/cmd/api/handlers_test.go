@@ -28,16 +28,6 @@ func TestSingUp(t *testing.T) {
 		t.Fatalf("Error creating request: %v", err)
 	}
 
-	// Create a mock HTTP server
-	/*mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Simulate the response from the authentication service
-		responseJSON := `{"message": "User added correctly"}`
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(responseJSON))
-	}))
-
-	defer mockServer.Close()*/
-
 	recorder := httptest.NewRecorder()
 	SingUp(recorder, req)
 	if recorder.Code != http.StatusOK {
@@ -182,8 +172,7 @@ func TestGetRentedBooks(t *testing.T) {
 
 	var response []data.Book
 	json.Unmarshal(rec.Body.Bytes(), &response)
-	fmt.Println(len(response))
-	fmt.Println("HALO")
+
 	if len(response) == 0 {
 		t.Errorf("Incorrect slice lenght")
 	}
