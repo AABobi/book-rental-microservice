@@ -24,6 +24,7 @@ func routes() http.Handler {
 
 	mux.Use(middleware.Heartbeat("/ping"))
 
+	mux.Get("/test", TestAuth)
 	mux.With(authenticate.Authenticate).Post("/authenticate", FindUser)
 	mux.With(authenticate.Authenticate).Get("/authorization", Auth)
 	mux.With(authenticate.Authenticate).Post("/add-new-user", CreateUser)

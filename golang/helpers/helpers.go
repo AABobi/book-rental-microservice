@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"book-rental/data"
 	"encoding/json"
 	"errors"
 	"io"
@@ -45,4 +46,15 @@ func ReadJSON(w http.ResponseWriter, r *http.Request, data any) error {
 	}
 
 	return nil
+}
+
+func ErrorJson(w http.ResponseWriter, message string, status int) {
+	var responseMessage = data.ResponseMessage{
+		Message: message,
+	}
+
+	err := WriteJSON(w, status, responseMessage)
+	if err != nil {
+		return
+	}
 }

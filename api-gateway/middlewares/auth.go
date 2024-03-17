@@ -31,6 +31,10 @@ var handlerFunc = func(h http.Handler) http.Handler {
 		}
 
 		hashedPassword, err := utils.HashPassword(authServicePassword)
+		if err != nil {
+			helpers.ErrorJson(w, "Password hashing problem", 500)
+			return
+		}
 		token := r.Header.Get("Authorization")
 
 		req.Header.Set("key", hashedPassword)

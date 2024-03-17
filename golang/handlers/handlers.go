@@ -4,7 +4,6 @@ import (
 	"book-rental/data"
 	"book-rental/db"
 	"book-rental/helpers"
-	"fmt"
 	"github.com/go-chi/chi/v5"
 	"net/http"
 	"strconv"
@@ -26,6 +25,9 @@ func GetRentedBooks(w http.ResponseWriter, r *http.Request) {
 
 	id := pathId(r)
 	uintValue, err := strconv.ParseUint(id, 10, 64)
+	if err != nil {
+		helpers.ErrorJson(w, "Parsing problem", 440)
+	}
 	userId := uint(uintValue)
 
 	data.GetRentedBooksFromDb(db.DB, &userId, &books)
@@ -40,12 +42,17 @@ func GetRentedBooks(w http.ResponseWriter, r *http.Request) {
 
 func RentBook(w http.ResponseWriter, r *http.Request) {
 	var books []data.Book
-	helpers.ReadJSON(w, r, &books)
+	err := helpers.ReadJSON(w, r, &books)
+	if err != nil {
+		helpers.ErrorJson(w, "Json reading problem", 500)
+		return
+	}
 	id := pathId(r)
 
-	fmt.Println("book")
-	fmt.Println(books)
 	uintValue, err := strconv.ParseUint(id, 10, 64)
+	if err != nil {
+		helpers.ErrorJson(w, "Parsing problem", 440)
+	}
 	userId := uint(uintValue)
 
 	err = data.RentBook(db.DB, &userId, books)
@@ -69,17 +76,26 @@ func RentBook(w http.ResponseWriter, r *http.Request) {
 func GetAllBooks(w http.ResponseWriter, r *http.Request) {
 	var books []data.Book
 	data.FindAllBooks(db.DB, &books)
-	helpers.WriteJSON(w, 200, books)
+	err := helpers.WriteJSON(w, 200, books)
+	if err != nil {
+		helpers.ErrorJson(w, "Json writing problem", 500)
+		return
+	}
 }
 
 func ReturnTheBook(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("ReturnTheBook RENTED")
 	var books []data.Book
-	helpers.ReadJSON(w, r, &books)
+	err := helpers.ReadJSON(w, r, &books)
+	if err != nil {
+		helpers.ErrorJson(w, "Json reading problem", 500)
+		return
+	}
 
 	id := pathId(r)
 	uintValue, err := strconv.ParseUint(id, 10, 64)
-
+	if err != nil {
+		helpers.ErrorJson(w, "Parsing problem", 440)
+	}
 	userId := uint(uintValue)
 	err = data.RemoveUserIdFromBooks(db.DB, userId, &books)
 

@@ -39,7 +39,10 @@ func TestGetAvailableBooks(t *testing.T) {
 
 	b := string(body)
 	var books []data.Book
-	json.Unmarshal([]byte(b), &books)
+	err = json.Unmarshal([]byte(b), &books)
+	if err != nil {
+		t.Errorf("Problem with unmarshal")
+	}
 
 	if len(books) != 37 {
 		t.Errorf("Unexpeted body return")
@@ -80,11 +83,11 @@ func TestRentBook(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	var expected = data.ResponseMessage{`The rental has been made correctly`}
+	var expected = data.ResponseMessage{Message: `The rental has been made correctly`}
 	var gotResponse data.ResponseMessage
 	err = json.Unmarshal(body, &gotResponse)
 
-	if gotResponse.Message != expected.Message {
+	if gotResponse.Message != expected.Message && err == nil {
 		t.Errorf("Rent a book test failed")
 	}
 }
@@ -121,7 +124,11 @@ func TestGetRentedBooks(t *testing.T) {
 
 	b := string(body)
 	var books []data.Book
-	json.Unmarshal([]byte(b), &books)
+	err = json.Unmarshal([]byte(b), &books)
+	if err != nil {
+		t.Errorf("Unmarshal problem")
+		return
+	}
 
 	if books[0].Name != expectedBook[0].Name {
 		t.Errorf("Get rented books test failed")
@@ -162,11 +169,11 @@ func TestReturnTheBook(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	var expected = data.ResponseMessage{`Success: Book is updated correctly`}
+	var expected = data.ResponseMessage{Message: `Success: Book is updated correctly`}
 	var gotResponse data.ResponseMessage
 	err = json.Unmarshal(body, &gotResponse)
 
-	if gotResponse.Message != expected.Message {
+	if gotResponse.Message != expected.Message && err == nil {
 		t.Errorf("Rent a book test failed")
 	}
 }

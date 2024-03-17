@@ -21,6 +21,7 @@ func routes() http.Handler {
 
 	mux.Post("/login", Login)
 	mux.Post("/signup", SingUp)
+	mux.Get("/test", DockerTest)
 	mux.With(middlewares.Authorization).Get("/get", GetAllBooks)
 	mux.With(middlewares.Authorization).Get("/get-available-books", GetAvailableBooks)
 	mux.With(middlewares.Authorization).Get("/get-rented-books", GetRentedBooks)

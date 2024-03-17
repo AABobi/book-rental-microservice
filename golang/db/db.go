@@ -3,6 +3,7 @@ package db
 import (
 	"book-rental/data"
 	"fmt"
+	"log"
 	"os"
 
 	"gorm.io/driver/sqlite"
@@ -25,7 +26,11 @@ func InitGDB() {
 		fmt.Printf("Database file %s exists\n", dbName)
 	} else {
 		books := testDataForDb()
-		db.AutoMigrate(&data.Book{})
+		err := db.AutoMigrate(&data.Book{})
+		if err != nil {
+			log.Fatal("Cannot migrate")
+			return
+		}
 		fillDb(db, books)
 	}
 	DB = db

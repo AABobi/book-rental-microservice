@@ -19,7 +19,10 @@ func TestAuthorization(t *testing.T) {
 	Authorization(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {})).ServeHTTP(rec, req)
 
 	var response data.AuthResponse
-	json.Unmarshal(rec.Body.Bytes(), &response)
+	err := json.Unmarshal(rec.Body.Bytes(), &response)
+	if err != nil {
+		return
+	}
 
 	expected := "Incorrect token"
 

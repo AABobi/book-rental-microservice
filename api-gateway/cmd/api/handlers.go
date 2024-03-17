@@ -27,23 +27,54 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	var user data.User
 	var response data.AuthResponse
 
-	url := "http://localhost:91/authenticate"
+	url := "http://auth2:91/authenticate"
 	err := helpers.ReadJSON(w, r, &user)
-
+	fmt.Println(user)
 	if err != nil {
 		http.Error(w, "Cannot read user json", 440)
 		return
 	}
 
 	resp, err := sendRequest(user, w, url, "POST", authServicePassword)
+	if err != nil {
+		helpers.ErrorJson(w, "Problem to send request", 500)
+		return
+	}
 	err = json.NewDecoder(resp.Body).Decode(&response)
 
 	if err != nil {
 		http.Error(w, "New request problem", 440)
 	}
 
-	helpers.WriteJSON(w, response, resp.StatusCode)
+	err = helpers.WriteJSON(w, response, resp.StatusCode)
+	if err != nil {
+		return
+	}
 	defer resp.Body.Close()
+}
+
+func DockerTest(w http.ResponseWriter, r *http.Request) {
+	var response data.ResponseMessage
+
+	url := "http://localhost:91/test"
+	req, err := http.NewRequest("GET", url, nil)
+
+	if err != nil {
+		http.Error(w, "Get request problem", 440)
+	}
+	hashedPassword, err := utils.HashPassword(authServicePassword)
+
+	if err != nil {
+		helpers.ErrorJson(w, "Password hashing problem", 500)
+
+	}
+	req.Header.Set("key", hashedPassword)
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	err = json.NewDecoder(resp.Body).Decode(&response)
+	fmt.Println("TEST")
+	fmt.Println(response)
+	helpers.WriteJSON(w, response, 200)
 }
 
 func SingUp(w http.ResponseWriter, r *http.Request) {
@@ -72,7 +103,11 @@ func SingUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	helpers.WriteJSON(w, response, resp.StatusCode)
+	err = helpers.WriteJSON(w, response, resp.StatusCode)
+	if err != nil {
+		helpers.ErrorJson(w, "Problem with writing json", 500)
+		return
+	}
 	defer resp.Body.Close()
 }
 
@@ -100,7 +135,11 @@ func GetAllBooks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	helpers.WriteJSON(w, books, resp.StatusCode)
+	err = helpers.WriteJSON(w, books, resp.StatusCode)
+	if err != nil {
+		helpers.ErrorJson(w, "Problem with writing json", 500)
+		return
+	}
 	defer resp.Body.Close()
 }
 
@@ -128,7 +167,11 @@ func GetRentedBooks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	helpers.WriteJSON(w, books, resp.StatusCode)
+	err = helpers.WriteJSON(w, books, resp.StatusCode)
+	if err != nil {
+		helpers.ErrorJson(w, "Problem with writing json", 500)
+		return
+	}
 	defer resp.Body.Close()
 }
 
@@ -155,7 +198,11 @@ func GetAvailableBooks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	helpers.WriteJSON(w, books, resp.StatusCode)
+	err = helpers.WriteJSON(w, books, resp.StatusCode)
+	if err != nil {
+		helpers.ErrorJson(w, "Problem with writing json", 500)
+		return
+	}
 	defer resp.Body.Close()
 }
 
@@ -165,7 +212,11 @@ func ReturnBook(w http.ResponseWriter, r *http.Request) {
 
 	userId := contextUserId(r)
 
-	helpers.ReadJSON(w, r, &books)
+	err := helpers.ReadJSON(w, r, &books)
+	if err != nil {
+		helpers.ErrorJson(w, "Problem with reading json", 500)
+		return
+	}
 	url := fmt.Sprintf("http://localhost:80/return-books/%s", userId)
 
 	resp, err := sendRequest(books, w, url, "POST", bookServicePassword)
@@ -181,18 +232,25 @@ func ReturnBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	helpers.WriteJSON(w, response, resp.StatusCode)
+	err = helpers.WriteJSON(w, response, resp.StatusCode)
+	if err != nil {
+		helpers.ErrorJson(w, "Problem with writing json", 500)
+		return
+	}
 	defer resp.Body.Close()
 }
 
 func RentBook(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("R")
 	var books []Book
 	var response data.ResponseMessage
 
 	userId := contextUserId(r)
 
-	helpers.ReadJSON(w, r, &books)
+	err := helpers.ReadJSON(w, r, &books)
+	if err != nil {
+		helpers.ErrorJson(w, "Problem with reading json", 500)
+		return
+	}
 	url := fmt.Sprintf("http://localhost:80/rent/%s", userId)
 
 	resp, err := sendRequest(books, w, url, "POST", bookServicePassword)
@@ -207,7 +265,10 @@ func RentBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	helpers.WriteJSON(w, response, resp.StatusCode)
+	err = helpers.WriteJSON(w, response, resp.StatusCode)
+	if err != nil {
+		return
+	}
 	defer resp.Body.Close()
 }
 func sendRequest(data any, w http.ResponseWriter, url string, method string, password string) (*http.Response, error) {
@@ -223,6 +284,11 @@ func sendRequest(data any, w http.ResponseWriter, url string, method string, pas
 				return nil, err
 			}
 			req, err = http.NewRequest(method, url, bytes.NewBuffer(jsonData))
+
+			if err != nil {
+				helpers.ErrorJson(w, "Problem with new request", 500)
+				return nil, err
+			}
 			break
 		}
 	case "GET":
@@ -239,6 +305,11 @@ func sendRequest(data any, w http.ResponseWriter, url string, method string, pas
 	}
 
 	hashedPassword, err := utils.HashPassword(password)
+
+	if err != nil {
+		helpers.ErrorJson(w, "Password hashing problem", 500)
+		return nil, err
+	}
 	req.Header.Set("key", hashedPassword)
 	client := &http.Client{}
 	resp, err := client.Do(req)

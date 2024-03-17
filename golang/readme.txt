@@ -13,3 +13,5 @@ github.com/golang-jwt/jwt/v5
 
 
  go get github.com/stretchr/testify/assert
+
+ https://golangci-lint.run/usage/quick-start/

@@ -60,13 +60,16 @@ func TestLogin(t *testing.T) {
 		t.Fatalf("Error creating request: %v", err)
 	}
 
-	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	/*mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authResponseJSON := `{"token": "some_token", "message": "Authentication successful"}`
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(authResponseJSON))
+		_, err := w.Write([]byte(authResponseJSON))
+		if err != nil {
+			return
+		}
 	}))
 
-	defer mockServer.Close()
+	defer mockServer.Close()*/
 	recorder := httptest.NewRecorder()
 	Login(recorder, req)
 
@@ -108,7 +111,10 @@ func TestGetAllBooks(t *testing.T) {
 	GetAllBooks(rec, req)
 
 	var response []data.Book
-	json.Unmarshal(rec.Body.Bytes(), &response)
+	err := json.Unmarshal(rec.Body.Bytes(), &response)
+	if err != nil {
+		t.Errorf("Cannot unmarshal json")
+	}
 	fmt.Println(len(response))
 	if len(response) == 0 {
 		t.Errorf("Slice is empty")
@@ -171,7 +177,10 @@ func TestGetRentedBooks(t *testing.T) {
 	GetRentedBooks(rec, req)
 
 	var response []data.Book
-	json.Unmarshal(rec.Body.Bytes(), &response)
+	err := json.Unmarshal(rec.Body.Bytes(), &response)
+	if err != nil {
+		t.Errorf("Cannot unmarshal json")
+	}
 
 	if len(response) == 0 {
 		t.Errorf("Incorrect slice lenght")

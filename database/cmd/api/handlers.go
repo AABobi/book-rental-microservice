@@ -28,6 +28,11 @@ func Auth(w http.ResponseWriter, r *http.Request) {
 	helpers.WriteJSON(w, 200, user)
 }
 
+func TestAuth(w http.ResponseWriter, r *http.Request) {
+	response.Message = "Test message"
+	helpers.WriteJSON(w, 200, response)
+}
+
 func FindUser(w http.ResponseWriter, r *http.Request) {
 	var requestData db.User
 

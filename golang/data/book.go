@@ -46,7 +46,10 @@ func RentBook(db *gorm.DB, userId *uint, books []Book) error {
 			errorHandler("User", err, tx)
 		}
 
-		updateBook(tx, &twoWeeksLater, *userId, shippingAddress, book)
+		err = updateBook(tx, &twoWeeksLater, *userId, shippingAddress, book)
+		if err != nil {
+			return err
+		}
 
 		if err != nil {
 			tx.Rollback()
@@ -108,7 +111,7 @@ func updateBook(tx *gorm.DB, date *time.Time, userId uint, shippingAddress strin
 	return nil
 }
 
-func errorHandler(wantedRecord string, err error, tx *gorm.DB) error {
+func errorHandler(wantedRecord string, err error, tx *gorm.DB) {
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		fmt.Printf("%s not found.", wantedRecord)
 	} else {
@@ -116,5 +119,4 @@ func errorHandler(wantedRecord string, err error, tx *gorm.DB) error {
 	}
 
 	tx.Rollback()
-	return err
 }

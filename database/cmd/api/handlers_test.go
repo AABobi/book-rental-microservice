@@ -52,7 +52,6 @@ func CreateDBforTest(m *testing.M) {
 }
 
 func TestCreateNewUser(t *testing.T) {
-	//pass, _ := utils.HashPassword("password")
 	newUser := db.User{
 		Email:    "test1@gmail.com",
 		Password: "pass",

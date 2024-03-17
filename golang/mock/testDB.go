@@ -3,6 +3,7 @@ package mock
 import (
 	"book-rental/data"
 	"book-rental/db"
+	"log"
 	"os"
 	"path/filepath"
 	"testing"
@@ -20,14 +21,22 @@ func CreateDBforTest(m *testing.M) {
 	}
 
 	dbName := filepath.Join(rootDir, "test.db")
-	os.Remove(dbName)
+	err = os.Remove(dbName)
+	if err != nil {
+		log.Fatal("Cannot remove db")
+		return
+	}
 
 	db.DB, err = gorm.Open(sqlite.Open(dbName), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 	}
 	books := testDataForDb()
-	db.DB.AutoMigrate(&data.Book{})
+	err = db.DB.AutoMigrate(&data.Book{})
+	if err != nil {
+		log.Fatal("Cannot remove db")
+		return
+	}
 	fillDb(db.DB, books)
 
 	os.Exit(m.Run())
